@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supermarket Dashboard</title>
+    <!-- ضع هذا السطر داخل <head> -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+
+<body class="bg-gray-100 font-sans transition-colors duration-500">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside
+            class="w-64 bg-gradient-to-b from-green-700 to-green-500 text-white p-6 shadow-lg animate__animated animate__fadeInLeft transition-colors duration-500"
+            id="sidebar">
+            <h2 class="text-3xl font-bold mb-10 tracking-wide">🛒 سوبر ماركت</h2>
+            <ul class="space-y-6">
+                <li><a href="#" class="block hover:text-yellow-300 transition" onclick="showProducts()">المنتجات</a>
+                </li>
+                <li><a href="#" class="block hover:text-yellow-300 transition" onclick="showDailyIncome()">الدخل
+                        اليومي</a></li>
+                <li><a href="#" class="block hover:text-yellow-300 transition" onclick="showOrders()">الطلبات</a></li>
+            </ul>
+            <button id="themeSwitcher"
+                class="mt-10 bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg transition w-full">تغيير
+                الثيم</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 transition-colors duration-500" id="mainContent">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8 animate__animated animate__fadeInDown">
+                <h1 class="text-4xl font-extrabold text-gray-800" id="headerTitle">لوحة التحكم</h1>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-700 font-medium" id="greeting">أهلاً، المدير</span>
+                    <img src="my img.jpeg" class="rounded-full w-12 h-12 shadow-lg" alt="Profile">
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <section id="statsCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div
+                    class="bg-white p-6 rounded-3xl shadow-xl hover:scale-105 transform transition duration-300 animate__animated animate__zoomIn">
+                    <h3 class="text-lg text-gray-400 mb-2 flex items-center gap-2">
+                        <i data-feather="package"></i> عدد المنتجات
+                    </h3>
+                    <p id="productsCount" class="text-3xl font-bold text-green-700 counter" data-target="2">0</p>
+                </div>
+                <div
+                    class="bg-white p-6 rounded-3xl shadow-xl hover:scale-105 transform transition duration-300 animate__animated animate__zoomIn animate__delay-1s">
+                    <h3 class="text-lg text-gray-400 mb-2 flex items-center gap-2">
+                        <i data-feather="shopping-cart"></i> عدد الطلبات
+                    </h3>
+                    <p id="ordersCount" class="text-3xl font-bold text-green-700 counter">0</p>
+                </div>
+                <div
+                    class="bg-white p-6 rounded-3xl shadow-xl hover:scale-105 transform transition duration-300 animate__animated animate__zoomIn animate__delay-2s">
+                    <h3 class="text-lg text-gray-400 mb-2 flex items-center gap-2">
+                        <i data-feather="dollar-sign"></i> إجمالي الأرباح
+                    </h3>
+                    <p id="totalProfit" class="text-3xl font-bold text-green-700 counter" data-target="25000">0 ج.م</p>
+                </div>
+            </section>
+
+            <!-- Products Section -->
+            <section id="productsSection"
+                class="bg-white p-6 rounded-3xl shadow-xl animate__animated animate__fadeInUp">
+                <div class="flex justify-between items-center mb-5">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">📦 المنتجات</h2>
+                    <div class="flex items-center space-x-3">
+                        <input type="text" id="searchInput"
+                            class="m-10 border rounded-lg p-2 w-64 shadow-inner focus:outline-none focus:ring-2 focus:ring-green-500"
+                            placeholder="ابحث عن منتج...">
+                        <button onclick="openModal()"
+                            class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow-lg transition">➕
+                            إضافة منتج</button>
+                    </div>
+                </div>
+                <table class="w-full border-collapse text-right">
+                    <thead>
+                        <tr class="bg-green-50 text-green-800 rounded-lg">
+                            <th class="p-4 border-b">المنتج</th>
+                            <th class="p-4 border-b">السعر</th>
+                            <th class="p-4 border-b">الكمية</th>
+                            <th class="p-4 border-b">الحالة</th>
+                            <th class="p-4 border-b">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTable">
+                        <tr class="hover:bg-green-100 transition-all">
+                            <td class="p-3 border-b flex items-center gap-2"><i data-feather="coffee"></i> سكر</td>
+                            <td class="p-3 border-b">50 ج.م</td>
+                            <td class="p-3 border-b">20</td>
+                            <td class="p-3 border-b"><span
+                                    class="bg-green-200 text-green-800 px-2 py-1 rounded-full text-sm">متوفر</span></td>
+                            <td class="p-3 border-b text-center">
+                                <button onclick="deleteProduct(this)"
+                                    class="bg-red-500 text-white px-4 py-1 rounded-lg hover:bg-red-600 transition">حذف</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-green-100 transition-all">
+                            <td class="p-3 border-b flex items-center gap-2"><i data-feather="shopping-bag"></i> أرز
+                            </td>
+                            <td class="p-3 border-b">70 ج.م</td>
+                            <td class="p-3 border-b">5</td>
+                            <td class="p-3 border-b"><span
+                                    class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full text-sm">قليل</span>
+                            </td>
+                            <td class="p-3 border-b text-center">
+                                <button onclick="deleteProduct(this)"
+                                    class="bg-red-500 text-white px-4 py-1 rounded-lg hover:bg-red-600 transition">حذف</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Daily Income Section -->
+            <section id="dailyIncomeSection"
+                class="hidden bg-white p-6 rounded-3xl shadow-xl animate__animated animate__fadeInUp">
+                <h2 class="text-2xl font-bold text-gray-800 mb-5">📊 الدخل اليومي</h2>
+                <canvas id="dailyChart" class="mb-5"></canvas>
+                <div class="flex items-center gap-3 mb-5">
+                    <input type="text" id="dailySearchInput"
+                        class="border rounded-lg p-2 w-64 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="ابحث بتاريخ...">
+                </div>
+                <form id="dailyIncomeForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
+                    <input type="date" id="incomeDate" class="border rounded-lg p-2" required>
+                    <input type="number" id="incomeRevenue" placeholder="الوارد" class="border rounded-lg p-2" required>
+                    <input type="number" id="incomeSales" placeholder="المبيعات" class="border rounded-lg p-2" required>
+                    <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg transition">إضافة</button>
+                </form>
+                <table class="w-full border-collapse text-right">
+                    <thead>
+                        <tr class="bg-green-50 text-green-800 rounded-lg">
+                            <th class="p-4 border-b">اليوم</th>
+                            <th class="p-4 border-b">الوارد</th>
+                            <th class="p-4 border-b">المبيعات</th>
+                            <th class="p-4 border-b">الإجمالي</th>
+                            <th class="p-4 border-b">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dailyIncomeTable"></tbody>
+                </table>
+            </section>
+
+            <!-- Orders Section -->
+            <section id="ordersSection"
+                class="hidden bg-white p-6 rounded-3xl shadow-xl animate__animated animate__fadeInUp">
+                <h2 class="text-2xl font-bold text-gray-800 mb-5">📝 الطلبات</h2>
+                <form id="addOrderForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                    <input type="text" id="orderName" placeholder="اسم الطلب" class="border rounded-lg p-2" required>
+                    <input type="number" id="orderQuantity" placeholder="الكمية" class="border rounded-lg p-2" required>
+                    <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg transition">إضافة
+                        طلب</button>
+                </form>
+                <table class="w-full border-collapse text-right">
+                    <thead>
+                        <tr class="bg-green-50 text-green-800 rounded-lg">
+                            <th class="p-4 border-b">اسم الطلب</th>
+                            <th class="p-4 border-b">الكمية</th>
+                            <th class="p-4 border-b">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTable"></tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal لإضافة منتج -->
+    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 w-96 animate__animated animate__fadeInDown">
+            <h2 class="text-2xl font-bold mb-5 text-green-700">➕ إضافة منتج جديد</h2>
+            <form id="addProductForm" class="space-y-4">
+                <input type="text" id="name"
+                    class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="اسم المنتج" required>
+                <input type="number" id="price"
+                    class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="السعر" required>
+                <input type="number" id="quantity"
+                    class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="الكمية" required>
+                <div class="flex justify-between mt-4">
+                    <button type="button" onclick="closeModal()"
+                        class="bg-gray-400 hover:bg-gray-500 text-white px-5 py-2 rounded-lg transition">إلغاء</button>
+                    <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg transition">إضافة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+
+        // عناصر
+        const modal = document.getElementById("productModal");
+        const table = document.getElementById("productsTable");
+        const themeSwitcher = document.getElementById("themeSwitcher");
+        const mainContent = document.getElementById("mainContent");
+        const sidebar = document.getElementById("sidebar");
+        const productsCountEl = document.getElementById("productsCount");
+        const totalProfitEl = document.getElementById("totalProfit");
+        const ordersCountEl = document.getElementById("ordersCount");
+
+        const statsCards = document.getElementById("statsCards");
+        const productsSection = document.getElementById("productsSection");
+        const dailyIncomeSection = document.getElementById("dailyIncomeSection");
+        const ordersSection = document.getElementById("ordersSection");
+        const headerTitle = document.getElementById("headerTitle");
+
+        // Theme Switcher
+        themeSwitcher.addEventListener("click", () => {
+            document.body.classList.toggle("bg-gray-900");
+            document.body.classList.toggle("text-black");
+            mainContent.classList.toggle("bg-gray-900");
+            sidebar.classList.toggle("from-green-700");
+            sidebar.classList.toggle("to-green-500");
+            sidebar.classList.toggle("bg-gray-800");
+        });
+
+        // تحديث العدادات
+        function updateCounters() {
+            const rows = Array.from(table.rows);
+            const productCount = rows.length;
+            let totalProfit = 0;
+            rows.forEach(row => {
+                const price = parseFloat(row.cells[1].textContent.replace(" ج.م", "").trim());
+                const qty = parseInt(row.cells[2].textContent.trim());
+                totalProfit += price * qty;
+            });
+            productsCountEl.textContent = productCount;
+            totalProfitEl.textContent = totalProfit + " ج.م";
+            // تحديث عدد الطلبات
+            const orders = JSON.parse(localStorage.getItem("ordersData") || "[]");
+            ordersCountEl.textContent = orders.length;
+        }
+
+        // فتح وغلق المودال
+        function openModal() { modal.classList.remove("hidden"); modal.classList.add("flex"); document.getElementById("addProductForm").reset(); }
+        function closeModal() { modal.classList.add("hidden"); modal.classList.remove("flex"); }
+
+        // إضافة منتج
+        document.getElementById("addProductForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const name = document.getElementById("name").value;
+            const price = document.getElementById("price").value;
+            const quantity = document.getElementById("quantity").value;
+
+            const badge = quantity > 10 ? `<span class="bg-green-200 text-green-800 px-2 py-1 rounded-full text-sm">متوفر</span>` :
+                quantity > 0 ? `<span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full text-sm">قليل</span>` :
+                    `<span class="bg-red-200 text-red-800 px-2 py-1 rounded-full text-sm">نفد</span>`;
+
+            const row = document.createElement("tr");
+            row.classList.add("animate__animated", "animate__fadeInUp", "hover:bg-green-100", "transition-all");
+            row.innerHTML = `
+        <td class="p-3 border-b flex items-center gap-2"><i data-feather="package"></i> ${name}</td>
+        <td class="p-3 border-b">${price} ج.م</td>
+        <td class="p-3 border-b">${quantity}</td>
+        <td class="p-3 border-b">${badge}</td>
+        <td class="p-3 border-b text-center">
+            <button onclick="deleteProduct(this)" class="bg-red-500 text-white px-4 py-1 rounded-lg hover:bg-red-600 transition">حذف</button>
+        </td>
+    `;
+            table.prepend(row);
+            feather.replace();
+            closeModal();
+            updateCounters();
+        });
+
+        // حذف منتج مع تأكيد
+        function deleteProduct(btn) {
+            if (!confirm("هل تريد حقًا حذف هذا المنتج؟")) return;
+            const row = btn.closest("tr");
+            row.classList.remove("animate__fadeInUp");
+            row.classList.add("animate__fadeOutDown");
+            setTimeout(() => {
+                row.remove();
+                updateCounters();
+            }, 500);
+        }
+
+        // البحث في المنتجات
+        document.getElementById("searchInput").addEventListener("input", function () {
+            const filter = this.value.toLowerCase();
+            Array.from(table.rows).forEach(row => {
+                const productName = row.cells[0].textContent.toLowerCase();
+                row.style.display = productName.includes(filter) ? "" : "none";
+            });
+        });
+
+        // عرض الصفحات
+        function showProducts() { productsSection.classList.remove("hidden"); dailyIncomeSection.classList.add("hidden"); ordersSection.classList.add("hidden"); statsCards.classList.remove("hidden"); headerTitle.textContent = "لوحة التحكم"; }
+        function showDailyIncome() { productsSection.classList.add("hidden"); dailyIncomeSection.classList.remove("hidden"); ordersSection.classList.add("hidden"); statsCards.classList.add("hidden"); headerTitle.textContent = "الدخل اليومي"; loadDailyIncome(); }
+        function showOrders() { productsSection.classList.add("hidden"); dailyIncomeSection.classList.add("hidden"); ordersSection.classList.remove("hidden"); statsCards.classList.add("hidden"); headerTitle.textContent = "الطلبات"; loadOrders(); }
+
+        // الدخل اليومي + localStorage
+        const dailyIncomeForm = document.getElementById("dailyIncomeForm");
+        const dailyIncomeTable = document.getElementById("dailyIncomeTable");
+        const DAILY_KEY = "dailyIncomeData";
+
+        function loadDailyIncome() {
+            dailyIncomeTable.innerHTML = "";
+            const data = JSON.parse(localStorage.getItem(DAILY_KEY) || "[]");
+            data.forEach((item, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+            <td class="p-3 border-b">${item.date}</td>
+            <td class="p-3 border-b">${item.revenue} ج.م</td>
+            <td class="p-3 border-b">${item.sales} ج.م</td>
+            <td class="p-3 border-b">${parseFloat(item.revenue) + parseFloat(item.sales)} ج.م</td>
+            <td class="p-3 border-b text-center">
+                <button onclick="deleteDailyRow(${index})" class="bg-red-500 text-white px-4 py-1 rounded-lg hover:bg-red-600 transition">حذف</button>
+            </td>
+        `;
+                dailyIncomeTable.appendChild(row);
+            });
+        }
+
+        dailyIncomeForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const date = document.getElementById("incomeDate").value;
+            const revenue = document.getElementById("incomeRevenue").value;
+            const sales = document.getElementById("incomeSales").value;
+            const data = JSON.parse(localStorage.getItem(DAILY_KEY) || "[]");
+            data.push({ date, revenue, sales });
+            localStorage.setItem(DAILY_KEY, JSON.stringify(data));
+            loadDailyIncome();
+            dailyIncomeForm.reset();
+        });
+
+
+        // إعداد الرسم البياني
+        let dailyChart;
+
+        function updateDailyChart() {
+            const data = JSON.parse(localStorage.getItem(DAILY_KEY) || "[]");
+            const labels = data.map(item => item.date);
+            const revenueData = data.map(item => parseFloat(item.revenue));
+            const salesData = data.map(item => parseFloat(item.sales));
+
+            const chartData = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'الوارد',
+                        data: revenueData,
+                        backgroundColor: 'rgba(34,197,94,0.5)',
+                        borderColor: 'rgba(34,197,94,1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'المبيعات',
+                        data: salesData,
+                        backgroundColor: 'rgba(234,179,8,0.5)',
+                        borderColor: 'rgba(234,179,8,1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+            const config = {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            };
+
+            if (dailyChart) {
+                dailyChart.destroy();
+            }
+            const ctx = document.getElementById('dailyChart').getContext('2d');
+            dailyChart = new Chart(ctx, config);
+        }
+
+        // استدعاء الرسم البياني بعد تحميل الدخل اليومي
+        function loadDailyIncome() {
+            dailyIncomeTable.innerHTML = "";
+            const data = JSON.parse(localStorage.getItem(DAILY_KEY) || "[]");
+            data.forEach((item, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+            <td class="p-3 border-b">${item.date}</td>
+            <td class="p-3 border-b">${item.revenue} ج.م</td>
+            <td class="p-3 border-b">${item.sales} ج.م</td>
+            <td class="p-3 border-b">${parseFloat(item.revenue) + parseFloat(item.sales)} ج.م</td>
+            <td class="p-3 border-b text-center">
+                <button onclick="deleteDailyRow(${index})" class="bg-red-500 text-white px-4 py-1 rounded-lg hover:bg-red-600 transition">حذف</button>
+            </td>
+        `;
+                dailyIncomeTable.appendChild(row);
+            });
+            updateDailyChart();
+        }
+
+        // بعد كل إضافة أو حذف صف في الدخل اليومي يتم تحديث الرسم
+        dailyIncomeForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const date = document.getElementById("incomeDate").value;
+            const revenue = document.getElementById("incomeRevenue").value;
+            const sales = document.getElementById("incomeSales").value;
+            const data = JSON.parse(localStorage.getItem(DAILY_KEY) || "[]");
+            data.unshift({ date, revenue, sales }); // أضف في أول الصفوف
+            localStorage.setItem(DAILY_KEY, JSON.stringify(data));
+            loadDailyIncome();
+            dailyIncomeForm.reset();
+        });
+
+        function deleteDailyRow(index) {
+            if (!confirm("هل تريد حذف هذا الصف؟")) return;
+            const data = JSON.parse(localStorage.getItem(DAILY_KEY) || "[]");
+            data.splice(index, 1);
+            localStorage.setItem(DAILY_KEY, JSON.stringify(data));
+            loadDailyIncome();
+        }
+
+        // حذف دخل يومي مع تأكيد
+        function deleteDailyRow(index) {
+            if (!confirm("هل تريد حذف هذا الصف؟")) return;
+            const data = JSON.parse(localStorage.getItem(DAILY_KEY) || "[]");
+            data.splice(index, 1);
+            localStorage.setItem(DAILY_KEY, JSON.stringify(data));
+            loadDailyIncome();
+        }
+
+        // بحث في الدخل اليومي
+        document.getElementById("dailySearchInput").addEventListener("input", function () {
+            const filter = this.value;
+            Array.from(dailyIncomeTable.rows).forEach(row => {
+                const date = row.cells[0].textContent;
+                row.style.display = date.includes(filter) ? "" : "none";
+            });
+        });
+
+        // الطلبات + localStorage
+        const addOrderForm = document.getElementById("addOrderForm");
+        const ordersTable = document.getElementById("ordersTable");
+        const ORDERS_KEY = "ordersData";
+
+        function loadOrders() {
+            ordersTable.innerHTML = "";
+            const data = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+            data.forEach((item, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+            <td class="p-3 border-b">${item.name}</td>
+            <td class="p-3 border-b">${item.quantity}</td>
+            <td class="p-3 border-b text-center">
+                <button onclick="deleteOrder(${index})" class="bg-red-500 text-white px-4 py-1 rounded-lg hover:bg-red-600 transition">حذف</button>
+            </td>
+        `;
+                ordersTable.appendChild(row);
+            });
+            updateCounters();
+        }
+
+        // إضافة طلب مع تعديل الكمية في المنتجات
+        addOrderForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const name = document.getElementById("orderName").value;
+            const quantity = parseInt(document.getElementById("orderQuantity").value);
+
+            // تحقق من المخزون
+            let available = false;
+            Array.from(table.rows).forEach(row => {
+                if (row.cells[0].textContent.includes(name)) {
+                    let currentQty = parseInt(row.cells[2].textContent);
+                    if (currentQty < quantity) { alert("الكمية المطلوبة أكبر من المخزون!"); available = false; return; }
+                    currentQty -= quantity;
+                    row.cells[2].textContent = currentQty;
+                    const badge = currentQty > 10 ? `<span class="bg-green-200 text-green-800 px-2 py-1 rounded-full text-sm">متوفر</span>` :
+                        currentQty > 0 ? `<span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full text-sm">قليل</span>` :
+                            `<span class="bg-red-200 text-red-800 px-2 py-1 rounded-full text-sm">نفد</span>`;
+                    row.cells[3].innerHTML = badge;
+                    available = true;
+                }
+            });
+            if (!available) { alert("المنتج غير موجود!"); return; }
+
+            // حفظ الطلب
+            const data = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+            data.push({ name, quantity });
+            localStorage.setItem(ORDERS_KEY, JSON.stringify(data));
+            loadOrders();
+            addOrderForm.reset();
+        });
+
+        // حذف طلب مع إعادة الكمية للمخزون
+        function deleteOrder(index) {
+            if (!confirm("هل تريد حذف هذا الطلب؟")) return;
+            const data = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+            const order = data[index];
+
+            // إعادة الكمية للمنتج
+            Array.from(table.rows).forEach(row => {
+                if (row.cells[0].textContent.includes(order.name)) {
+                    let currentQty = parseInt(row.cells[2].textContent);
+                    currentQty += parseInt(order.quantity);
+                    row.cells[2].textContent = currentQty;
+                    const badge = currentQty > 10 ? `<span class="bg-green-200 text-green-800 px-2 py-1 rounded-full text-sm">متوفر</span>` :
+                        currentQty > 0 ? `<span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full text-sm">قليل</span>` :
+                            `<span class="bg-red-200 text-red-800 px-2 py-1 rounded-full text-sm">نفد</span>`;
+                    row.cells[3].innerHTML = badge;
+                }
+            });
+
+            data.splice(index, 1);
+            localStorage.setItem(ORDERS_KEY, JSON.stringify(data));
+            loadOrders();
+        }
+
+        // عرض المنتجات افتراضياً
+        showProducts();
+        updateCounters();
+    </script>
+    <style>
+        /* للجوال */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+    }
+}
+@media (max-width: 768px) {
+    .sidebar {
+        flex-direction: column;
+    }
+}
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+    }
+}
+@media (max-width: 600px) {
+    .sidebar {
+        flex-direction: column;
+    }
+}
+@media (max-width: 425px) {
+    .navbar {
+        flex-direction: column;
+    }
+}
+@media (max-width: 425px) {
+    .sidebar {
+        flex-direction: column;
+    }
+}
+@media (max-width: 320px) {
+    .navbar {
+        flex-direction: column;
+    }
+}
+@media (max-width: 320px) {
+    .sidebar {
+        flex-direction: column;
+    }
+}
+    </style>
+</body>
+
+</html>
