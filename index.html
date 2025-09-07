@@ -530,48 +530,99 @@
         showProducts();
         updateCounters();
     </script>
+
     <style>
-        /* للجوال */
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-    }
-}
-@media (max-width: 768px) {
-    .sidebar {
-        flex-direction: column;
-    }
-}
-@media (max-width: 600px) {
-    .navbar {
-        flex-direction: column;
-    }
-}
-@media (max-width: 600px) {
-    .sidebar {
-        flex-direction: column;
-    }
-}
-@media (max-width: 425px) {
-    .navbar {
-        flex-direction: column;
-    }
-}
-@media (max-width: 425px) {
-    .sidebar {
-        flex-direction: column;
-    }
-}
-@media (max-width: 320px) {
-    .navbar {
-        flex-direction: column;
-    }
-}
-@media (max-width: 320px) {
-    .sidebar {
-        flex-direction: column;
-    }
-}
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .product {
+            flex: 1 1 calc(33.33% - 20px);
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            .product {
+                flex: 1 1 calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product {
+                flex: 1 1 100%;
+            }
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        body {
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333;
+            padding: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+            }
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
     </style>
 </body>
 
